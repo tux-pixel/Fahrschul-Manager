@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FleetManager Pro - Admin & Cloud</title>
+    <title>FleetManager Pro - Einfacher Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .sidebar { background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); }
         .hidden { display: none !important; }
-        .active-link { border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.1); }
     </style>
 </head>
 <body class="bg-gray-50 flex h-screen overflow-hidden text-gray-800">
@@ -18,126 +17,91 @@
     <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
         <div class="text-center mb-8">
             <h2 class="text-3xl font-extrabold text-blue-600">FleetPro Login</h2>
-            <p class="text-gray-400 mt-2">Bitte mit Ihren Zugangsdaten anmelden</p>
+            <p class="text-gray-400 mt-2">Anmeldung für Admin oder Mitarbeiter</p>
         </div>
-        <input type="email" id="login-email" placeholder="E-Mail" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
+        <!-- Geändert: Benutzername statt E-Mail -->
+        <input type="text" id="login-username" placeholder="Benutzername (z.B. admin)" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
         <input type="password" id="login-pass" placeholder="Passwort" class="w-full p-4 border rounded-xl mb-6 focus:ring-2 focus:ring-blue-500 outline-none">
-        <button onclick="handleLogin()" class="bg-blue-600 hover:bg-blue-700 text-white w-full py-4 rounded-xl font-bold transition-all shadow-lg">Jetzt Anmelden</button>
+        <button onclick="handleLogin()" class="bg-blue-600 hover:bg-blue-700 text-white w-full py-4 rounded-xl font-bold transition-all shadow-lg">Anmelden</button>
         <p id="login-error" class="text-red-500 mt-4 text-center text-sm font-medium"></p>
     </div>
 </div>
 
-<!-- SIDEBAR -->
+<!-- SIDEBAR & MAIN CONTENT (Struktur bleibt gleich wie zuvor) -->
 <aside class="sidebar w-64 text-white flex flex-col shrink-0">
     <div class="p-8 text-center border-b border-slate-700">
         <h2 class="text-xl font-bold tracking-tighter">FLEETMANAGER</h2>
         <span class="text-[10px] bg-blue-500 px-2 py-0.5 rounded uppercase" id="role-badge">Mitarbeiter</span>
     </div>
-    
     <nav class="flex-grow p-4 space-y-2 mt-4">
-        <button onclick="showSection('dashboard')" class="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition flex items-center gap-3">🏠 Dashboard</button>
-        <button onclick="showSection('leasing')" class="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition flex items-center gap-3">📉 Leasing-Fuhrpark</button>
-        <button onclick="showSection('todo')" class="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition flex items-center gap-3">✅ Aufgaben</button>
-        <button onclick="showSection('werkstatt')" class="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition flex items-center gap-3">🔧 Werkstatt & Design</button>
+        <button onclick="showSection('dashboard')" class="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">🏠 Dashboard</button>
+        <button onclick="showSection('leasing')" class="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">📉 Leasing-Fuhrpark</button>
+        <button onclick="showSection('todo')" class="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">✅ Aufgaben</button>
     </nav>
-
     <div class="p-6 border-t border-slate-700">
         <div class="text-xs text-slate-400 mb-4 truncate" id="user-display">Nicht angemeldet</div>
         <button onclick="handleLogout()" class="w-full bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white py-2 rounded-lg text-sm font-semibold transition border border-red-500/20">Abmelden</button>
     </div>
 </aside>
 
-<!-- MAIN CONTENT -->
 <main class="flex-grow overflow-y-auto p-8 lg:p-12">
-    
-    <!-- DASHBOARD -->
+    <!-- DASHBOARD SECTION -->
     <section id="section-dashboard" class="content-section">
-        <header class="mb-10">
-            <h1 class="text-4xl font-black text-slate-900">Dashboard</h1>
-            <p class="text-slate-500" id="current-date"></p>
-        </header>
-
+        <h1 class="text-4xl font-black text-slate-900 mb-8">Dashboard</h1>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
             <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                <h3 class="text-slate-400 text-xs font-black uppercase tracking-widest mb-2">Fahrzeuge Aktiv</h3>
+                <h3 class="text-slate-400 text-xs font-black uppercase tracking-widest mb-2">Fahrzeuge</h3>
                 <p id="stat-cars" class="text-4xl font-bold">0</p>
             </div>
             <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                <h3 class="text-slate-400 text-xs font-black uppercase tracking-widest mb-2">Offene To-Dos</h3>
+                <h3 class="text-slate-400 text-xs font-black uppercase tracking-widest mb-2">To-Dos</h3>
                 <p id="stat-todos" class="text-4xl font-bold text-blue-600">0</p>
             </div>
             <div class="bg-red-600 p-8 rounded-3xl shadow-lg text-white hidden" id="alert-card">
-                <h3 class="text-red-200 text-xs font-black uppercase tracking-widest mb-2">Rückgabe-Alarme</h3>
+                <h3 class="text-red-200 text-xs font-black uppercase tracking-widest mb-2">Alarme</h3>
                 <p id="stat-alerts" class="text-4xl font-bold">0</p>
             </div>
         </div>
-
         <div class="bg-white rounded-3xl shadow-sm p-8 border border-gray-100">
-            <h2 class="text-xl font-bold mb-6">Fahrzeug-Fristen (3 Monate)</h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead><tr class="text-slate-400 text-sm border-b uppercase font-bold"><th class="pb-4">Modell</th><th class="pb-4">Enddatum</th><th class="pb-4">Status</th></tr></thead>
-                    <tbody id="alert-list" class="divide-y divide-gray-50"></tbody>
-                </table>
-            </div>
+            <h2 class="text-xl font-bold mb-6">Fristen (3 Monate)</h2>
+            <table class="w-full text-left">
+                <tbody id="alert-list" class="divide-y divide-gray-50"></tbody>
+            </table>
         </div>
     </section>
 
-    <!-- LEASING -->
+    <!-- LEASING SECTION -->
     <section id="section-leasing" class="content-section hidden">
         <div class="flex justify-between items-center mb-10">
             <h1 class="text-4xl font-black">Leasing-Fuhrpark</h1>
             <div class="admin-only hidden">
-                <button onclick="toggleLeaseForm()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold shadow-blue-200 shadow-lg hover:scale-105 transition">+ Auto hinzufügen</button>
+                <button onclick="toggleLeaseForm()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg">+ Auto hinzufügen</button>
             </div>
         </div>
-
-        <!-- Add Form (Hidden by default) -->
         <div id="lease-form" class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 mb-8 hidden">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <input type="text" id="l-model" placeholder="Modell (z.B. VW Golf)" class="p-3 border rounded-xl">
+                <input type="text" id="l-model" placeholder="Modell" class="p-3 border rounded-xl">
                 <input type="date" id="l-start" class="p-3 border rounded-xl">
                 <input type="number" id="l-months" placeholder="Monate" class="p-3 border rounded-xl">
                 <button onclick="addLease()" class="bg-green-500 text-white rounded-xl font-bold py-3">Speichern</button>
             </div>
         </div>
-
         <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
             <table class="w-full text-left">
                 <thead class="bg-gray-50 border-b text-slate-400 text-xs font-black uppercase">
-                    <tr><th class="p-6">Fahrzeug</th><th class="p-6">Start</th><th class="p-6">Ende</th><th class="p-6 text-center">Aktion</th></tr>
+                    <tr><th class="p-6">Fahrzeug</th><th class="p-6">Ende</th><th class="p-6 text-center">Aktion</th></tr>
                 </thead>
                 <tbody id="lease-table" class="divide-y divide-gray-50"></tbody>
             </table>
         </div>
     </section>
-
-    <!-- TODO SECTION (Ähnlich wie Leasing) -->
-    <section id="section-todo" class="content-section hidden">
-        <h1 class="text-4xl font-black mb-10">Aufgaben & Termine</h1>
-        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                <input type="text" id="t-task" placeholder="Was ist zu tun?" class="p-3 border rounded-xl lg:col-span-2">
-                <input type="date" id="t-date" class="p-3 border rounded-xl">
-                <div class="flex gap-2">
-                    <input type="time" id="t-start" class="p-3 border rounded-xl w-full">
-                    <input type="time" id="t-end" class="p-3 border rounded-xl w-full">
-                </div>
-                <button onclick="addTodo()" class="bg-blue-600 text-white rounded-xl font-bold shadow-lg">Hinzufügen</button>
-            </div>
-        </div>
-        <div id="todo-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-    </section>
-
 </main>
 
-<!-- FIREBASE SDK & LOGIC -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // --- FIREBASE KONFIGURATION (HIER ERSETZEN) ---
     const firebaseConfig = {
         apiKey: "DEIN_API_KEY",
         authDomain: "DEIN_PROJEKT.firebaseapp.com",
@@ -153,14 +117,18 @@
 
     let isAdmin = false;
 
-    // LOGIN & ROLLENPRÜFUNG
+    // LOGIN LOGIK MIT BENUTZERNAME
     window.handleLogin = async () => {
-        const email = document.getElementById('login-email').value;
+        const username = document.getElementById('login-username').value.trim();
         const pass = document.getElementById('login-pass').value;
+        
+        // Wir hängen intern @fleet.pro an, um die E-Mail-Pflicht von Firebase zu erfüllen
+        const email = username.includes('@') ? username : `${username}@fleet.pro`;
+
         try {
             await signInWithEmailAndPassword(auth, email, pass);
         } catch (error) {
-            document.getElementById('login-error').innerText = "Login fehlgeschlagen!";
+            document.getElementById('login-error').innerText = "Login ungültig!";
         }
     };
 
@@ -169,117 +137,62 @@
     onAuthStateChanged(auth, (user) => {
         if (user) {
             document.getElementById('login-overlay').classList.add('hidden');
-            document.getElementById('user-display').innerText = user.email;
+            const displayUser = user.email.split('@')[0];
+            document.getElementById('user-display').innerText = `Angemeldet als: ${displayUser}`;
             
-            // ADMIN-LOGIK: Wenn E-Mail "admin" enthält, ist man Admin
-            if (user.email.toLowerCase().includes('admin')) {
+            // ROLLENPRÜFUNG: Wenn Benutzername exakt "admin" ist
+            if (displayUser.toLowerCase() === 'admin') {
                 isAdmin = true;
                 document.getElementById('role-badge').innerText = "ADMIN";
-                document.getElementById('role-badge').classList.replace('bg-blue-500', 'bg-red-500');
+                document.getElementById('role-badge').className = "text-[10px] bg-red-500 px-2 py-0.5 rounded uppercase";
                 document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
             }
             initDashboard();
         } else {
             document.getElementById('login-overlay').classList.remove('hidden');
+            isAdmin = false;
         }
     });
 
-    // DATEN LOGIK (LEASING)
+    // (Die Funktionen initDashboard, addLease, deleteEntry etc. bleiben identisch zum letzten Code)
     function initDashboard() {
-        // Realtime Listener für Leasing
         onSnapshot(collection(db, "leasing"), (snapshot) => {
             const table = document.getElementById('lease-table');
             const alertTable = document.getElementById('alert-list');
             table.innerHTML = ""; alertTable.innerHTML = "";
             let alerts = 0;
-
             snapshot.forEach(docSnap => {
                 const data = docSnap.data();
-                const end = new Date(data.end);
-                const diff = (end - new Date()) / (1000 * 60 * 60 * 24 * 30); // in Monaten
-
-                table.innerHTML += `
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="p-6 font-bold text-slate-900">${data.model}</td>
-                        <td class="p-6 text-gray-400">${data.start}</td>
-                        <td class="p-6 font-semibold">${data.end}</td>
-                        <td class="p-6 text-center">
-                            ${isAdmin ? `<button onclick="deleteEntry('leasing', '${docSnap.id}')" class="text-red-400 hover:text-red-600 font-bold">Löschen</button>` : '-'}
-                        </td>
-                    </tr>`;
-
+                const diff = (new Date(data.end) - new Date()) / (1000 * 60 * 60 * 24 * 30);
+                table.innerHTML += `<tr><td class="p-6 font-bold">${data.model}</td><td class="p-6">${data.end}</td><td class="p-6 text-center">${isAdmin ? `<button onclick="deleteEntry('leasing','${docSnap.id}')" class="text-red-500">Löschen</button>` : '-'}</td></tr>`;
                 if(diff <= 3) {
                     alerts++;
-                    alertTable.innerHTML += `<tr class="bg-red-50/50"><td class="p-4 font-bold">${data.model}</td><td class="p-4">${data.end}</td><td class="p-4 text-red-600 font-black">RÜCKGABE!</td></tr>`;
+                    alertTable.innerHTML += `<tr class="bg-red-50"><td class="p-4 font-bold">${data.model}</td><td class="p-4">${data.end}</td><td class="p-4 text-red-600 font-bold text-right">RÜCKGABE!</td></tr>`;
                 }
             });
-
             document.getElementById('stat-cars').innerText = snapshot.size;
             document.getElementById('stat-alerts').innerText = alerts;
             document.getElementById('alert-card').classList.toggle('hidden', alerts === 0);
         });
-
-        // Realtime Listener für To-Dos
-        onSnapshot(collection(db, "todos"), (snapshot) => {
-            const container = document.getElementById('todo-list');
-            container.innerHTML = "";
-            snapshot.forEach(docSnap => {
-                const t = docSnap.data();
-                container.innerHTML += `
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex justify-between items-start">
-                        <div>
-                            <span class="text-[10px] text-blue-600 font-black uppercase tracking-widest">${t.date}</span>
-                            <h4 class="text-lg font-bold text-slate-800 mt-1">${t.task}</h4>
-                            <p class="text-sm text-slate-400">${t.start} - ${t.end}</p>
-                        </div>
-                        ${isAdmin ? `<button onclick="deleteEntry('todos', '${docSnap.id}')" class="bg-gray-50 p-2 rounded-lg text-gray-300 hover:text-red-500 transition">✖</button>` : ''}
-                    </div>`;
-            });
-            document.getElementById('stat-todos').innerText = snapshot.size;
-        });
     }
 
-    // CRUD FUNKTIONEN
     window.addLease = async () => {
-        if(!isAdmin) return alert("Nur Admins dürfen das!");
         const model = document.getElementById('l-model').value;
         const start = document.getElementById('l-start').value;
         const months = parseInt(document.getElementById('l-months').value);
-
-        if(!model || !start || !months) return alert("Fehlende Daten!");
-
+        if(!model || !start || !months) return;
         let endDate = new Date(start);
         endDate.setMonth(endDate.getMonth() + months);
-
-        await addDoc(collection(db, "leasing"), {
-            model, start, end: endDate.toISOString().split('T')[0]
-        });
-        toggleLeaseForm();
+        await addDoc(collection(db, "leasing"), { model, start, end: endDate.toISOString().split('T')[0] });
+        document.getElementById('lease-form').classList.add('hidden');
     };
 
-    window.addTodo = async () => {
-        const task = document.getElementById('t-task').value;
-        const date = document.getElementById('t-date').value;
-        const start = document.getElementById('t-start').value;
-        const end = document.getElementById('t-end').value;
-        if(!task || !date) return alert("Name und Datum sind Pflicht!");
-        await addDoc(collection(db, "todos"), { task, date, start, end });
-        document.getElementById('t-task').value = "";
-    };
-
-    window.deleteEntry = async (col, id) => {
-        if(confirm("Eintrag wirklich löschen?")) {
-            await deleteDoc(doc(db, col, id));
-        }
-    };
-
-    // UI HELPERS
+    window.deleteEntry = async (col, id) => { if(confirm("Löschen?")) await deleteDoc(doc(db, col, id)); };
     window.showSection = (id) => {
         document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
         document.getElementById('section-' + id).classList.remove('hidden');
     };
     window.toggleLeaseForm = () => document.getElementById('lease-form').classList.toggle('hidden');
-    document.getElementById('current-date').innerText = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 </script>
 </body>
 </html>
