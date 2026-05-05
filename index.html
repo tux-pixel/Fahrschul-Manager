@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FleetManager Pro Cloud - Firebase Edition</title>
+    <!-- Tailwind CSS für professionelles Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .sidebar { background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); }
+        .nav-link:hover { background: rgba(255,255,255,0.1); }
+        .active-link { background: #3b82f6 !important; color: white; }
+        .hidden { display: none !important; }
+        .loader { border-top-color: #3498db; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-100 flex h-screen overflow-hidden">
+
+<!-- LOGIN OVERLAY -->
+<div id="login-overlay" class="fixed inset-0 bg-black bg-opacity-90 z-[9999] flex items-center justify-center">
+    <div class="bg-white p-10 rounded-xl shadow-2xl w-96 text-center">
+        <h2 class="text-2xl font-bold text-blue-600 mb-6">FleetManager Login</h2>
+        <input type="email" id="login-email" placeholder="E-Mail" class="w-full p-3 border rounded mb-4">
+        <input type="password" id="login-pass" placeholder="Passwort" class="w-full p-3 border rounded mb-6">
+        <button onclick="handleLogin()" class="bg-blue-600 text-white w-full py-3 rounded-lg font-bold hover:bg-blue-700 transition">Anmelden</button>
+        <p id="login-error" class="text-red-500 mt-4 text-sm"></p>
+    </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar w-64 text-gray-300 flex flex-col p-6">
+    <h2 class="text-xl font-bold text-blue-400 mb-10 text-center uppercase tracking-wider">FleetPro Cloud</h2>
+    <nav class="flex-grow space-y-2">
+        <button onclick="showSection('dashboard')" class="nav-link w-full text-left p-3 rounded transition flex items-center gap-3">🏠 Dashboard</button>
+        <button onclick="showSection('leasing')" class="nav-link w-full text-left p-3 rounded transition flex items-center gap-3">📉 Leasing-PKW</button>
+        <button onclick="showSection('todo')" class="nav-link w-full text-left p-3 rounded transition flex items-center gap-3">✅ To-Do Liste</button>
+        <button id="admin-nav" onclick="showSection('admin')" class="nav-link w-full text-left p-3 rounded transition flex items-center gap-3 hidden">👥 Benutzerverwaltung</button>
+    </nav>
+    <div class="mt-auto pt-6 border-t border-gray-700">
+        <p id="user-info" class="text-xs text-gray-500 mb-4 truncate"></p>
+        <button onclick="handleLogout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded text-sm font-bold">Abmelden</button>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main class="flex-grow overflow-y-auto p-10">
+    <!-- DASHBOARD -->
+    <section id="section-dashboard" class="content-section">
+        <h1 class="text-3xl font-bold mb-8">Dashboard Übersicht</h1>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
+                <h3 class="text-gray-500 text-sm font-bold uppercase">Leasing Fahrzeuge</h3>
+                <p id="stat-cars" class="text-3xl font-bold text-gray-800">0</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-500">
+                <h3 class="text-gray-500 text-sm font-bold uppercase">Offene To-Dos</h3>
+                <p id="stat-todos" class="text-3xl font-bold text-gray-800">0</p>
+            </div>
+            <div id="alarm-card" class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-red-500 hidden">
+                <h3 class="text-red-500 text-sm font-bold uppercase">Achtung: Rückgaben!</h3>
+                <p id="stat-alerts" class="text-3xl font-bold text-gray-800">0</p>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <h3 class="text-lg font-bold mb-4">Anstehende Leasing-Enden (3 Monate Frist)</h3>
+            <table class="w-full text-left">
+                <thead><tr class="text-gray-400 border-bottom text-sm italic"><th>Fahrzeug</th><th>Datum</th><th>Status</th></tr></thead>
+                <tbody id="alert-list" class="divide-y"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- LEASING -->
+    <section id="section-leasing" class="content-section hidden">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold">Leasing-Verwaltung</h1>
+            <button id="add-btn" onclick="toggleModal('lease-modal')" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold hidden">+ Neues Fahrzeug</button>
+        </div>
+        <div class="bg-white rounded-xl shadow overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 border-b">
+                    <tr><th class="p-4">Modell</th><th class="p-4">Kaufdatum</th><th class="p-4">Ende</th><th class="p-4">Aktion</th></tr>
+                </thead>
+                <tbody id="lease-table" class="divide-y"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- TODO -->
+    <section id="section-todo" class="content-section hidden">
+        <h1 class="text-3xl font-bold mb-8">Aufgabenplanung</h1>
+        <div class="bg-white p-6 rounded-xl shadow mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <input type="text" id="todo-text" placeholder="Aufgabe" class="p-2 border rounded">
+                <input type="date" id="todo-date" class="p-2 border rounded">
+                <input type="time" id="todo-start" class="p-2 border rounded">
+                <input type="time" id="todo-end" class="p-2 border rounded">
+                <button onclick="saveTodo()" class="bg-blue-600 text-white rounded font-bold">Hinzufügen</button>
+            </div>
+        </div>
+        <div id="todo-list" class="space-y-4"></div>
+    </section>
+</main>
+
+<!-- FIREBASE SDK & LOGIC -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // HIER DEINE FIREBASE CONFIG EINSETZEN
+    const firebaseConfig = {
+        apiKey: "AIzaSyA66gfqlheXMBYLc-U95zKR6JN4P5IHWKk",
+        authDomain: "fahrschul-manager-258d9.firebaseapp.com",
+        projectId: "fahrschul-manager-258d9",
+        storageBucket: "fahrschul-manager-258d9.firebasestorage.app",
+        messagingSenderId: "236536433656",
+        appId: "1:236536433656:web:31b688846b679d87a9e40d"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentRole = 'Mitarbeiter';
+
+    // AUTHENTIFIZIERUNG
+    window.handleLogin = async () => {
+        const email = document.getElementById('login-email').value;
+        const pass = document.getElementById('login-pass').value;
+        try {
+            await signInWithEmailAndPassword(auth, email, pass);
+        } catch (error) {
+            document.getElementById('login-error').innerText = "Fehler: " + error.message;
+        }
+    };
+
+    window.handleLogout = () => signOut(auth);
+
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            document.getElementById('login-overlay').classList.add('hidden');
+            document.getElementById('user-info').innerText = user.email;
+            
+            // In einer echten App würde man die Rolle aus Firestore laden
+            // Hier simulieren wir: admin@deinedomain.de ist Admin
+            if(user.email.includes('admin')) {
+                currentRole = 'Admin';
+                document.getElementById('admin-nav').classList.remove('hidden');
+                document.getElementById('add-btn').classList.remove('hidden');
+            }
+            loadData();
+        } else {
+            document.getElementById('login-overlay').classList.remove('hidden');
+        }
+    });
+
+    // DATEN LADEN (REALTIME)
+    function loadData() {
+        // Leasing
+        onSnapshot(collection(db, "leasing"), (snapshot) => {
+            const list = document.getElementById('lease-table');
+            const alertList = document.getElementById('alert-list');
+            list.innerHTML = ""; alertList.innerHTML = "";
+            let alerts = 0;
+            
+            snapshot.forEach(docSnap => {
+                const car = docSnap.data();
+                const id = docSnap.id;
+                const end = new Date(car.end);
+                const diff = (end - new Date()) / (1000 * 60 * 60 * 24 * 30);
+                
+                list.innerHTML += `<tr>
+                    <td class="p-4 font-bold">${car.model}</td>
+                    <td class="p-4 text-gray-500">${car.start}</td>
+                    <td class="p-4">${car.end}</td>
+                    <td class="p-4">
+                        ${currentRole === 'Admin' ? `<button onclick="deleteDoc(doc(db, 'leasing', '${id}'))" class="text-red-500 hover:underline">Löschen</button>` : '-'}
+                    </td>
+                </tr>`;
+
+                if(diff <= 3) {
+                    alerts++;
+                    alertList.innerHTML += `<tr class="bg-red-50"><td class="p-2 font-bold">${car.model}</td><td class="p-2">${car.end}</td><td class="p-2 text-red-600 font-bold">FRIST!</td></tr>`;
+                }
+            });
+            document.getElementById('stat-cars').innerText = snapshot.size;
+            document.getElementById('stat-alerts').innerText = alerts;
+            if(alerts > 0) document.getElementById('alarm-card').classList.remove('hidden');
+        });
+
+        // To-Dos
+        onSnapshot(collection(db, "todos"), (snapshot) => {
+            const list = document.getElementById('todo-list');
+            list.innerHTML = "";
+            snapshot.forEach(docSnap => {
+                const t = docSnap.data();
+                list.innerHTML += `
+                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-400 flex justify-between items-center">
+                        <div>
+                            <h4 class="font-bold">${t.task}</h4>
+                            <p class="text-sm text-gray-400">${t.date} | ${t.start} - ${t.end}</p>
+                        </div>
+                        <button onclick="deleteDoc(doc(db, 'todos', '${docSnap.id}'))" class="text-gray-300 hover:text-red-500">✖</button>
+                    </div>`;
+            });
+            document.getElementById('stat-todos').innerText = snapshot.size;
+        });
+    }
+
+    // SPEICHERN
+    window.saveTodo = async () => {
+        const task = document.getElementById('todo-text').value;
+        const date = document.getElementById('todo-date').value;
+        const start = document.getElementById('todo-start').value;
+        const end = document.getElementById('todo-end').value;
+        if(!task || !date) return;
+        await addDoc(collection(db, "todos"), { task, date, start, end });
+        document.getElementById('todo-text').value = "";
+    };
+
+    // Hilfsfunktionen für UI
+    window.showSection = (id) => {
+        document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
+        document.getElementById('section-' + id).classList.remove('hidden');
+    };
+</script>
+</body>
+</html>
