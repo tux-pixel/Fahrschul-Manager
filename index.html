@@ -33,6 +33,7 @@
             <input type="text" id="login-user" placeholder="Benutzername" class="w-full p-3 border rounded-xl mb-3 focus:ring-2 focus:ring-blue-500 outline-none">
             <input type="password" id="login-pass" placeholder="Passwort" class="w-full p-3 border rounded-xl mb-6 focus:ring-2 focus:ring-blue-500 outline-none">
             <button onclick="handleLogin()" class="w-full bg-blue-800 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200">Anmelden</button>
+            <p id="login-msg" class="text-[10px] mt-4 text-slate-400 uppercase italic"></p>
         </div>
     </div>
 
@@ -53,8 +54,8 @@
 
             <div id="admin-nav" class="hidden border-t border-slate-800 pt-6 mt-6">
                 <div class="text-[10px] uppercase font-bold text-slate-500 px-4 mb-2 tracking-widest">System</div>
-                <a onclick="showSection('archive')" class="sidebar-link flex items-center p-3 rounded-lg"><i class="fas fa-box-archive w-8 text-purple-400"></i> Archiv</a>
-                <a onclick="showSection('users')" class="sidebar-link flex items-center p-3 rounded-lg"><i class="fas fa-users-gear w-8 text-slate-300"></i> Benutzerverwaltung</a>
+                <a onclick="showSection('archive')" class="sidebar-link flex items-center p-3 rounded-lg" id="nav-archive"><i class="fas fa-box-archive w-8 text-purple-400"></i> Archiv</a>
+                <a onclick="showSection('users')" class="sidebar-link flex items-center p-3 rounded-lg" id="nav-users"><i class="fas fa-users-gear w-8 text-slate-300"></i> Benutzerverwaltung</a>
             </div>
         </nav>
 
@@ -114,18 +115,18 @@
 
             <div id="section-fleet" class="content-section">
                 <div id="fleet-admin-tools" class="hidden bg-white p-8 rounded-2xl shadow-sm border mb-8 border-l-8 border-l-emerald-500">
-                    <h3 class="font-bold text-slate-800 mb-4">Neues Leasing-Fahrzeug hinzufügen</h3>
+                    <h3 class="font-bold text-slate-800 mb-4">Neues Leasing-Fahrzeug</h3>
                     <div class="grid grid-cols-4 gap-6 items-end">
-                        <div><label class="text-[10px] font-bold text-slate-400 uppercase">Modellbezeichnung</label><input type="text" id="f-model" class="w-full p-2 border rounded-lg"></div>
-                        <div><label class="text-[10px] font-bold text-slate-400 uppercase">Kauf am</label><input type="date" id="f-bought" class="w-full p-2 border rounded-lg"></div>
-                        <div><label class="text-[10px] font-bold text-slate-400 uppercase">Rückgabe am</label><input type="date" id="f-end" class="w-full p-2 border rounded-lg"></div>
+                        <div><label class="text-[10px] font-bold text-slate-400 uppercase">Modell</label><input type="text" id="f-model" class="w-full p-2 border rounded-lg"></div>
+                        <div><label class="text-[10px] font-bold text-slate-400 uppercase">Kauf</label><input type="date" id="f-bought" class="w-full p-2 border rounded-lg"></div>
+                        <div><label class="text-[10px] font-bold text-slate-400 uppercase">Rückgabe</label><input type="date" id="f-end" class="w-full p-2 border rounded-lg"></div>
                         <button onclick="addFleetItem()" class="bg-emerald-600 text-white p-2 rounded-lg font-bold">Hinzufügen</button>
                     </div>
                 </div>
                 <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
                     <table class="w-full text-left">
                         <thead class="bg-slate-50 border-b text-[10px] uppercase font-bold text-slate-500 tracking-widest">
-                            <tr><th class="p-6">Fahrzeug Modell</th><th>Gekauft am</th><th>Rückgabe am</th><th>Status</th><th class="p-6 text-right">Aktion</th></tr>
+                            <tr><th class="p-6">Modell</th><th>Kauf</th><th>Rückgabe</th><th>Status</th><th class="p-6 text-right">Aktion</th></tr>
                         </thead>
                         <tbody id="fleet-list"></tbody>
                     </table>
@@ -135,17 +136,14 @@
             <div id="section-todo" class="content-section">
                 <div id="todo-admin-tools" class="hidden bg-white p-6 rounded-2xl shadow-sm border mb-6 border-l-8 border-l-red-500">
                     <div class="grid grid-cols-4 gap-4 items-end">
-                        <div><label class="text-[10px] font-bold uppercase text-slate-400">Datum</label><input type="date" id="todo-date" class="w-full p-2 border rounded-lg"></div>
-                        <div class="col-span-2"><label class="text-[10px] font-bold uppercase text-slate-400">Aufgabe</label><input type="text" id="todo-task" class="w-full p-2 border rounded-lg" placeholder="Was ist zu tun?"></div>
+                        <div><input type="date" id="todo-date" class="w-full p-2 border rounded-lg"></div>
+                        <div class="col-span-2"><input type="text" id="todo-task" class="w-full p-2 border rounded-lg" placeholder="Aufgabe..."></div>
                         <button onclick="addTask('todo')" class="bg-red-500 text-white p-2 rounded-lg font-bold">Anlegen</button>
                     </div>
                 </div>
-                <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+                <div id="todo-list" class="bg-white rounded-2xl shadow-sm border overflow-hidden">
                     <table class="w-full text-left">
-                        <thead class="bg-red-50 text-red-900 text-[10px] uppercase font-bold tracking-widest">
-                            <tr><th class="p-6">Datum</th><th>Aufgabe</th><th class="p-6 text-right">Aktion</th></tr>
-                        </thead>
-                        <tbody id="todo-list"></tbody>
+                        <tbody id="todo-table-body"></tbody>
                     </table>
                 </div>
             </div>
@@ -153,17 +151,14 @@
             <div id="section-workshop" class="content-section">
                 <div id="workshop-admin-tools" class="hidden bg-white p-6 rounded-2xl shadow-sm border mb-6 border-l-8 border-l-slate-800">
                     <div class="grid grid-cols-4 gap-4 items-end">
-                        <div><label class="text-[10px] font-bold uppercase text-slate-400">Datum</label><input type="date" id="workshop-date" class="w-full p-2 border rounded-lg"></div>
-                        <div class="col-span-2"><label class="text-[10px] font-bold uppercase text-slate-400">Details</label><input type="text" id="workshop-task" class="w-full p-2 border rounded-lg" placeholder="z.B. Bus Design Folierung"></div>
+                        <div><input type="date" id="workshop-date" class="w-full p-2 border rounded-lg"></div>
+                        <div class="col-span-2"><input type="text" id="workshop-task" class="w-full p-2 border rounded-lg" placeholder="Werkstatt Details..."></div>
                         <button onclick="addTask('workshop')" class="bg-slate-800 text-white p-2 rounded-lg font-bold">Planen</button>
                     </div>
                 </div>
-                <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+                <div id="workshop-list-container" class="bg-white rounded-2xl shadow-sm border overflow-hidden">
                     <table class="w-full text-left">
-                        <thead class="bg-slate-100 text-[10px] uppercase font-bold tracking-widest text-slate-600">
-                            <tr><th class="p-6">Termin</th><th>Eintrag</th><th class="p-6 text-right">Aktion</th></tr>
-                        </thead>
-                        <tbody id="workshop-list"></tbody>
+                        <tbody id="workshop-table-body"></tbody>
                     </table>
                 </div>
             </div>
@@ -171,21 +166,17 @@
             <div id="section-archive" class="content-section">
                 <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
                     <table class="w-full text-left">
-                        <thead class="bg-purple-50 text-purple-900 text-[10px] uppercase font-bold tracking-widest">
-                            <tr><th class="p-6">Bereich</th><th>Datum</th><th>Details</th><th class="p-6 text-right">Aktion</th></tr>
-                        </thead>
-                        <tbody id="archive-list"></tbody>
+                        <tbody id="archive-table-body"></tbody>
                     </table>
                 </div>
             </div>
 
             <div id="section-users" class="content-section">
                 <div class="bg-white p-8 rounded-2xl shadow-sm border mb-8 border-l-8 border-l-blue-900">
-                    <h3 class="font-bold mb-4">Neuen Mitarbeiter erfassen</h3>
                     <div class="grid grid-cols-4 gap-4 items-end">
-                        <div><label class="text-[10px] font-bold uppercase text-slate-400">Name</label><input type="text" id="u-name" class="p-2 border w-full rounded-lg"></div>
-                        <div><label class="text-[10px] font-bold uppercase text-slate-400">Passwort</label><input type="password" id="u-pass" class="p-2 border w-full rounded-lg"></div>
-                        <div><label class="text-[10px] font-bold uppercase text-slate-400">Berechtigung</label><select id="u-role" class="p-2 border w-full rounded-lg"><option value="Mitarbeiter">Mitarbeiter</option><option value="Büro">Büro</option><option value="admin">Admin</option></select></div>
+                        <div><input type="text" id="u-name" class="p-2 border w-full rounded-lg" placeholder="Name"></div>
+                        <div><input type="password" id="u-pass" class="p-2 border w-full rounded-lg" placeholder="Passwort"></div>
+                        <div><select id="u-role" class="p-2 border w-full rounded-lg"><option value="Mitarbeiter">Mitarbeiter</option><option value="Büro">Büro</option><option value="admin">Admin</option></select></div>
                         <button onclick="createUser()" class="bg-blue-900 text-white p-2 rounded-lg font-bold">Nutzer anlegen</button>
                     </div>
                 </div>
@@ -196,7 +187,7 @@
     </main>
 
     <script>
-        // --- KONFIGURATION (Bitte deine echten Daten hier nutzen) ---
+        // --- KONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyA66gfqlheXMBYLc-U95zKR6JN4P5IHWKk",
             authDomain: "fahrschul-manager-258d9.firebaseapp.com",
@@ -206,7 +197,6 @@
             messagingSenderId: "236536433656",
             appId: "1:236536433656:web:de285f8abdb14373a9e40d",
             measurementId: "G-GBQZXCEVZS"
-                       
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -214,22 +204,44 @@
         let currentUser = null;
         let mainData = {};
 
-        // --- AUTH & INITIALISIERUNG ---
+        // --- AUTH & LOGIN ---
         function handleLogin() {
-            const u = document.getElementById('login-user').value;
-            const p = document.getElementById('login-pass').value;
+            const u = document.getElementById('login-user').value.trim();
+            const p = document.getElementById('login-pass').value.trim();
+            const msg = document.getElementById('login-msg');
+
+            if(!u || !p) return alert("Bitte Felder füllen!");
+
             db.ref('users').once('value', s => {
-                const users = s.val() ? Object.values(s.val()) : [];
+                const userData = s.val();
+                
+                // INITIAL-MODUS: Falls kein User existiert, admin/admin erlauben
+                if (!userData) {
+                    if (u === "admin" && p === "admin") {
+                        const firstAdmin = { id: Date.now(), name: "admin", pass: "admin", role: "admin" };
+                        db.ref('users/' + firstAdmin.id).set(firstAdmin);
+                        currentUser = firstAdmin;
+                        startApp();
+                    } else {
+                        msg.innerText = "Datenbank leer. Nutze 'admin' / 'admin'.";
+                    }
+                    return;
+                }
+
+                const users = Object.values(userData);
                 const found = users.find(x => x.name === u && x.pass === p);
+
                 if(found) {
                     currentUser = found;
-                    document.getElementById('login-screen').classList.add('hidden');
                     startApp();
-                } else { alert("Zugriff verweigert!"); }
+                } else {
+                    alert("Zugriff verweigert!");
+                }
             });
         }
 
         function startApp() {
+            document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('user-name-display').innerText = currentUser.name;
             document.getElementById('user-role-display').innerText = currentUser.role;
             document.getElementById('user-initials').innerText = currentUser.name.charAt(0);
@@ -260,7 +272,7 @@
             });
         }
 
-        // --- CORE LOGIK: BUS & AUTO ---
+        // --- LOGIK ---
         function saveGenericBooking(type) {
             const entry = {
                 id: Date.now(),
@@ -271,7 +283,7 @@
                 person: document.getElementById(`${type}-user-select`).value,
                 type: type
             };
-            if(!entry.date || !entry.start || !entry.end) return alert("Datum und Zeit fehlen!");
+            if(!entry.date || !entry.start) return alert("Daten unvollständig!");
             db.ref(type + '/' + entry.id).set(entry);
         }
 
@@ -281,21 +293,20 @@
             const isPrivileged = (currentUser.role === 'admin' || currentUser.role === 'Büro');
 
             list.innerHTML = items.map(i => `
-                <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 ${type==='bus'?'border-l-blue-600':'border-l-orange-500'} flex justify-between items-center group">
+                <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 ${type==='bus'?'border-l-blue-600':'border-l-orange-500'} flex justify-between items-center">
                     <div class="flex items-center gap-6">
-                        <div class="text-center min-w-[60px]"><p class="text-[10px] uppercase font-bold text-slate-400">${new Date(i.date).toLocaleDateString('de-DE', {weekday:'short'})}</p><p class="font-black text-slate-800">${new Date(i.date).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'})}</p></div>
+                        <div class="text-center min-w-[60px]"><p class="text-[10px] font-bold text-slate-400">${new Date(i.date).toLocaleDateString('de-DE', {weekday:'short'})}</p><p class="font-black text-slate-800">${new Date(i.date).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'})}</p></div>
                         <div class="bg-slate-50 px-3 py-1 rounded-lg border font-mono text-sm font-bold text-slate-600">${i.start} - ${i.end}</div>
-                        <div><p class="text-blue-600 font-black uppercase text-xs">${i.person}</p><p class="text-xs text-slate-400 italic">${i.reason || 'Kein Zweck angegeben'}</p></div>
+                        <div><p class="text-blue-600 font-black uppercase text-xs">${i.person}</p><p class="text-xs text-slate-400 italic">${i.reason || '-'}</p></div>
                     </div>
-                    <div class="flex gap-3">
-                        <button onclick="archiveItem('${type}', '${i.id}')" class="w-8 h-8 rounded-full bg-slate-50 text-purple-400 hover:bg-purple-500 hover:text-white transition"><i class="fas fa-check"></i></button>
-                        ${isPrivileged ? `<button onclick="hardDelete('${type}', '${i.id}')" class="w-8 h-8 rounded-full bg-slate-50 text-red-300 hover:bg-red-500 hover:text-white transition"><i class="fas fa-trash-alt"></i></button>` : ''}
+                    <div class="flex gap-2">
+                        <button onclick="archiveItem('${type}', '${i.id}')" class="w-8 h-8 rounded-full bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white transition"><i class="fas fa-check"></i></button>
+                        ${isPrivileged ? `<button onclick="hardDelete('${type}', '${i.id}')" class="w-8 h-8 rounded-full bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition"><i class="fas fa-trash"></i></button>` : ''}
                     </div>
                 </div>
             `).join('');
         }
 
-        // --- CORE LOGIK: TODO & WORKSHOP ---
         function addTask(type) {
             const d = document.getElementById(type + '-date').value;
             const t = document.getElementById(type + '-task').value;
@@ -305,34 +316,20 @@
         }
 
         function renderGenericList(type) {
-            const list = document.getElementById(type + '-list');
+            const body = document.getElementById(type + '-table-body');
             const items = Object.values(mainData[type] || {}).sort((a,b) => a.date.localeCompare(b.date));
             const isPrivileged = (currentUser.role === 'admin' || currentUser.role === 'Büro');
 
-            list.innerHTML = items.map(i => `
-                <tr class="border-b hover:bg-slate-50 transition">
-                    <td class="p-4 font-bold text-slate-600">${new Date(i.date).toLocaleDateString('de-DE')}</td>
-                    <td class="p-4">${isPrivileged ? `<span class="cursor-pointer border-b border-dotted" onclick="editGenericTask('${type}', '${i.id}', '${i.task}')">${i.task}</span>` : i.task}</td>
+            body.innerHTML = items.map(i => `
+                <tr class="border-b hover:bg-slate-50">
+                    <td class="p-4 font-bold text-slate-600 w-32">${new Date(i.date).toLocaleDateString('de-DE')}</td>
+                    <td class="p-4">${i.task}</td>
                     <td class="p-4 text-right">
-                        <button onclick="archiveItem('${type}', '${i.id}')" class="text-purple-400 mr-4"><i class="fas fa-check-circle"></i></button>
-                        ${isPrivileged ? `<button onclick="hardDelete('${type}', '${i.id}')" class="text-red-200 hover:text-red-600"><i class="fas fa-trash"></i></button>` : '<i class="fas fa-lock text-slate-100"></i>'}
+                        <button onclick="archiveItem('${type}', '${i.id}')" class="text-purple-500 mr-4"><i class="fas fa-check-circle"></i></button>
+                        ${isPrivileged ? `<button onclick="hardDelete('${type}', '${i.id}')" class="text-red-300 hover:text-red-600"><i class="fas fa-trash"></i></button>` : ''}
                     </td>
                 </tr>
             `).join('');
-        }
-
-        function editGenericTask(type, id, oldText) {
-            const n = prompt("Eintrag ändern:", oldText);
-            if(n && n !== oldText) db.ref(type + '/' + id).update({ task: n });
-        }
-
-        // --- CORE LOGIK: LEASING ---
-        function addFleetItem() {
-            const m = document.getElementById('f-model').value;
-            const b = document.getElementById('f-bought').value;
-            const e = document.getElementById('f-end').value;
-            if(!m || !e) return;
-            db.ref('fleet/' + Date.now()).set({ id: Date.now(), model: m, bought: b, end: e });
         }
 
         function renderFleet() {
@@ -343,48 +340,41 @@
             indicator.innerHTML = "";
 
             list.innerHTML = items.map(i => {
-                const end = new Date(i.end);
-                const diff = (end - new Date()) / (1000*60*60*24*30.44);
-                let rowColor = "";
+                const diff = (new Date(i.end) - new Date()) / (1000*60*60*24*30.44);
+                if(diff <= 3 && isPrivileged) indicator.innerHTML = `<div class="bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-black warning-blink">LEASING ALARM</div>`;
                 
-                if(diff <= 3 && diff > 0 && isPrivileged) {
-                    indicator.innerHTML = `<div class="bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-black warning-blink"><i class="fas fa-warning mr-2"></i> LEASING-ALARM AKTIV</div>`;
-                    rowColor = "bg-red-50 text-red-600 font-bold";
-                }
-
-                return `<tr class="border-b ${rowColor}">
+                return `<tr class="border-b">
                     <td class="p-6 font-black">${i.model}</td>
-                    <td>${i.bought ? new Date(i.bought).toLocaleDateString() : '-'}</td>
-                    <td>${new Date(i.end).toLocaleDateString()}</td>
-                    <td><span class="text-[10px] px-2 py-1 bg-slate-100 rounded uppercase font-bold">${Math.ceil(diff)} Mon. Rest</span></td>
-                    <td class="p-6 text-right">${isPrivileged ? `<button onclick="hardDelete('fleet', '${i.id}')" class="text-red-300"><i class="fas fa-trash-alt"></i></button>` : '<i class="fas fa-lock"></i>'}</td>
+                    <td>${i.bought || '-'}</td>
+                    <td>${i.end}</td>
+                    <td><span class="px-2 py-1 bg-slate-100 rounded text-xs">${Math.ceil(diff)} Mon. Rest</span></td>
+                    <td class="p-6 text-right">${isPrivileged ? `<button onclick="hardDelete('fleet', '${i.id}')" class="text-red-300"><i class="fas fa-trash"></i></button>` : ''}</td>
                 </tr>`;
             }).join('');
         }
 
-        // --- ARCHIV & USERS ---
+        function addFleetItem() {
+            const m = document.getElementById('f-model').value;
+            const b = document.getElementById('f-bought').value;
+            const e = document.getElementById('f-end').value;
+            if(m && e) db.ref('fleet/' + Date.now()).set({ id: Date.now(), model: m, bought: b, end: e });
+        }
+
         function archiveItem(type, id) {
             const item = mainData[type][id];
             db.ref('archive/' + id).set({...item, originalType: type});
             db.ref(type + '/' + id).remove();
         }
 
-        function restoreFromArchive(id) {
-            const item = mainData.archive[id];
-            db.ref(item.originalType + '/' + id).set(item);
-            db.ref('archive/' + id).remove();
-        }
-
         function renderArchive() {
-            const list = document.getElementById('archive-list');
+            const body = document.getElementById('archive-table-body');
             const items = Object.values(mainData.archive || {});
-            list.innerHTML = items.map(i => `
+            body.innerHTML = items.map(i => `
                 <tr class="border-b text-sm">
-                    <td class="p-6 uppercase font-black text-[10px] text-purple-600">${i.originalType}</td>
-                    <td>${i.date}</td>
-                    <td>${i.reason || i.task || 'Eintrag'} (${i.person || 'System'})</td>
-                    <td class="p-6 text-right">
-                        <button onclick="restoreFromArchive('${i.id}')" class="text-green-500 mr-4"><i class="fas fa-undo"></i></button>
+                    <td class="p-4 uppercase font-bold text-purple-600 text-[10px]">${i.originalType}</td>
+                    <td class="p-4">${i.date}</td>
+                    <td class="p-4">${i.reason || i.task || 'Eintrag'}</td>
+                    <td class="p-4 text-right">
                         <button onclick="hardDelete('archive', '${i.id}')" class="text-red-300"><i class="fas fa-trash-alt"></i></button>
                     </td>
                 </tr>
@@ -395,28 +385,20 @@
             const n = document.getElementById('u-name').value;
             const p = document.getElementById('u-pass').value;
             const r = document.getElementById('u-role').value;
-            if(!n || !p) return;
-            db.ref('users/' + Date.now()).set({ id: Date.now(), name: n, pass: p, role: r });
+            if(n && p) db.ref('users/' + Date.now()).set({ id: Date.now(), name: n, pass: p, role: r });
         }
 
         function renderUsers() {
             const grid = document.getElementById('user-grid');
             const users = Object.values(mainData.users || {});
             grid.innerHTML = users.map(u => `
-                <div class="bg-white p-5 rounded-2xl border shadow-sm flex flex-col justify-between">
-                    <div class="flex justify-between items-start">
-                        <div><p class="font-black text-slate-800">${u.name}</p><p class="text-[10px] text-blue-600 font-bold uppercase tracking-widest">${u.role}</p></div>
-                        <i class="fas fa-user-circle text-2xl text-slate-100"></i>
-                    </div>
-                    <div class="mt-6 flex gap-2">
-                        <button onclick="const n = prompt('Neues Passwort für ${u.name}:'); if(n) db.ref('users/${u.id}').update({pass:n});" class="text-[10px] font-bold bg-slate-50 p-2 rounded-lg hover:bg-blue-600 hover:text-white transition">PASSWORT</button>
-                        <button onclick="hardDelete('users', '${u.id}')" class="text-[10px] font-bold text-red-400 p-2">LÖSCHEN</button>
-                    </div>
+                <div class="bg-white p-5 rounded-2xl border flex justify-between items-center">
+                    <div><p class="font-black text-slate-800">${u.name}</p><p class="text-[10px] text-blue-600 font-bold">${u.role}</p></div>
+                    <button onclick="hardDelete('users', '${u.id}')" class="text-red-200 hover:text-red-600"><i class="fas fa-user-minus"></i></button>
                 </div>
             `).join('');
         }
 
-        // --- HELFER ---
         function hardDelete(type, id) { if(confirm("Endgültig löschen?")) db.ref(type + '/' + id).remove(); }
         
         function showSection(id) {
